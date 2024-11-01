@@ -1,65 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { MenuIcon, XIcon } from '@heroicons/react/outline'; // Import icons for toggle button
+
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="w-full md:w-1/4 bg-gray-200 text-black p-4">
-      <ul className="space-y-4">
-        <li>
-          <NavLink
-            to="/"
-            exact
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Home
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/play-self"
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Play Self
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/play-online"
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Play Online
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/play-computer"
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Play Computer
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/solve-puzzles"
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Solve Puzzles
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/analyse-position"
-            className="block px-4 py-2 rounded-lg text-lg hover:bg-blue-500 hover:text-white transition"
-            activeClassName="bg-blue-600 text-white font-semibold"
-          >
-            Analyse Position
-          </NavLink>
-        </li>
+    <div className="md:w-1/5 bg-gray-800 h-screen p-6">
+      {/* Header and Toggle Button for mobile */}
+      <div className="flex justify-between items-center md:hidden">
+        <h1 className="text-lg font-semibold text-gray-200">Chess App</h1>
+        <button onClick={toggleMenu} className="text-gray-200 focus:outline-none">
+          {isOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+        </button>
+      </div>
+
+      {/* Menu Links */}
+      <ul
+        className={`${
+          isOpen ? 'block' : 'hidden'
+        } mt-4 space-y-6 md:block md:mt-0`}
+      >
+        {[
+          { to: '/', label: 'Home' },
+          { to: '/play-self', label: 'Play Self' },
+          { to: '/play-online', label: 'Play Online' },
+          { to: '/play-computer', label: 'Play Computer' },
+          { to: '/solve-puzzles', label: 'Solve Puzzles' },
+          { to: '/analyse-position', label: 'Analyse Position' },
+        ].map((link) => (
+          <li key={link.to}>
+            <NavLink
+              to={link.to}
+              className={({ isActive }) =>
+                `block px-4 py-2 rounded-md text-lg transition-colors ${
+                  isActive
+                    ? 'bg-blue-600 text-white font-semibold'
+                    : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          </li>
+        ))}
       </ul>
     </div>
   );

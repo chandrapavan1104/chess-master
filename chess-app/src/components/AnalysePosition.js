@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import PredictionBar from './PredictionBar';
@@ -10,6 +10,26 @@ const AnalysePosition = () => {
   const [gameStatus, setGameStatus] = useState('Game in progress.');
   const [errorMessage, setErrorMessage] = useState('');
   const [evaluation, setEvaluation] = useState(0.5);
+  const [boardSize, setBoardSize] = useState(calculateBoardSize());
+
+  // Function to calculate the board size based on window width and height
+  function calculateBoardSize() {
+    return Math.min(window.innerWidth * 0.7, window.innerHeight * 0.7, 500); // Adjusted max size
+  }
+
+  // Resize event listener to update board size
+  useEffect(() => {
+    const handleResize = () => {
+      setBoardSize(calculateBoardSize());
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup listener on component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const onFenChange = (event) => {
     setFen(event.target.value);
@@ -48,8 +68,6 @@ const AnalysePosition = () => {
       if (data.error) {
         setErrorMessage(data.error);
       } else {
-        console.log(data.score);
-        console.log(data.mate_chances);
         setEvaluation(data.score);
       }
     } catch (error) {
@@ -72,33 +90,41 @@ const AnalysePosition = () => {
   };
 
   return (
-    <div className="w-full flex justify-center items-start">
-      <div className="w-5/6 flex flex-col justify-center items-center">
-        <h1>Analyse Position</h1>
+    <div className="flex flex-col items-center bg-gray-900 text-gray-200 min-h-screen p-4">
+      {/* FEN Input, Heading, and Button in a Single Row */}
+      <div className="flex flex-col md:flex-row items-center w-full max-w-4xl mb-4 space-y-2 md:space-y-0 md:space-x-4">
+        <h1 className="text-lg md:text-xl whitespace-nowrap">Analyse Position</h1>
         <input
           type="text"
           value={fen}
           onChange={onFenChange}
           placeholder="Enter FEN"
-          style={{ marginBottom: '10px', padding: '5px', width: '400px' }}
+          className="flex-grow p-2 rounded bg-gray-800 text-gray-200"
         />
-        <button onClick={onFenSubmit} style={{ marginBottom: '20px', padding: '5px 10px' }}>Set Position</button>    
+        <button
+          onClick={onFenSubmit}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+        >
+          Set Position
+        </button>
+      </div>
+
+      {/* Chessboard and Prediction Bar */}
+      <div className="flex justify-center items-start space-x-4 w-full max-w-4xl">
+        <div className="flex flex-col items-center bg-gray-800 p-4 rounded-lg shadow-lg">
           <Chessboard
             position={game.fen()}
             onPieceDrop={onPieceDrop}
-            boardWidth={600} // Adjust the width as desired
+            boardWidth={boardSize} // Dynamic board size based on window resize
           />
-        <div style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</div>
-        <div style={{ marginTop: '10px' }}>{gameStatus}</div>
-      </div>
-      <div className="w-1/6 flex flex-col justify-center items-center" >
-          <PredictionBar evaluation={evaluation} />
-
+          <div className="mt-4 text-center">{gameStatus}</div>
+          {errorMessage && (
+            <div className="text-red-500 mt-2">{errorMessage}</div>
+          )}
+        </div>
+        <PredictionBar evaluation={evaluation} height={boardSize} width={boardSize * 0.15} /> {/* Adjusted width */}
       </div>
     </div>
-      
-
-    
   );
 };
 

@@ -48,9 +48,9 @@ const ChessGame = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1>Chessboard with Initial Positions</h1>
-      <Chessboard position={game.fen()} onPieceDrop={handlePieceDrop} />
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 className="text-xl text-center mb-4">Chessboard</h2>
+      <Chessboard position={game.fen()} onPieceDrop={handlePieceDrop} boardWidth={700} />
       <div style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</div>
       <div style={{ marginTop: '10px' }}>{gameStatus}</div>
     </div>
