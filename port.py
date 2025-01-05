@@ -3,6 +3,7 @@ import json
 from flask_restful import Api, Resource
 from flask_cors import CORS
 import chess
+import chess.engine
 from stockfish import Stockfish
 import traceback
 
@@ -103,20 +104,8 @@ class MakeMove(Resource):
             print(f"Error in MakeMove: {e}")
             return {"message": "Internal server error"}, 500
 
-# class SuggestMove(Resource):
-#     def post(self):
-#         try:
-#             data = request.get_json()
-#             fen = data['fen']
-#             game = ChessGame(fen)
-#             best_move = game.get_stockfish_move()
-#             return jsonify({'best_move': best_move})
-#         except Exception as e:
-#             print(f"Error in SuggestMove: {e}")
-#             return {"message": "Internal server error"}, 500
-        
 class AnalysePosition(Resource):
-    def evaluate_position(self):
+    def post(self):
         try:
             data = request.get_json()
             fen = data.get('fen')
@@ -125,44 +114,33 @@ class AnalysePosition(Resource):
 
             with chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH) as engine:
                 board = chess.Board(fen)
-                try:
-                    # Perform a single analysis for both score and mate chances
-                    result = engine.analyse(board, chess.engine.Limit(depth=20))
+                result = engine.analyse(board, chess.engine.Limit(depth=20))
 
-                    # Extract score information (evaluation for white)
-                    score = result['score'].white().score()
-                    normalized_score = self.normalize_score(score)
+                score = result['score'].white().score()
+                normalized_score = self.normalize_score(score)
 
-                    # Extract mate information (if any)
-                    mate_in_moves = result['score'].white().mate()
-                    print(mate_in_moves)
-                    mate_chances = self.get_mate_chances(mate_in_moves)
-
-                    print(fen, normalized_score, mate_chances)
-
-                except chess.engine.EngineTerminatedError:
-                    return jsonify({'error': 'Stockfish engine terminated unexpectedly'}), 500
-                except Exception as e:
-                    return jsonify({'error': f'Error during analysis: {str(e)}'}), 500
+                mate_in_moves = result['score'].white().mate()
+                mate_chances = self.get_mate_chances(mate_in_moves)
 
             return jsonify({
                 'score': normalized_score,
                 'mate_chances': mate_chances
             })
 
+        except chess.engine.EngineTerminatedError:
+            return jsonify({'error': 'Stockfish engine terminated unexpectedly'}), 500
         except Exception as e:
-            print(traceback.format_exc())  # Print the full traceback to the console
+            print(traceback.format_exc())
             return jsonify({'error': str(e)}), 500
-        
-    def normalize_score(score):
+
+    def normalize_score(self, score):
         if score is None:
             return 0.5
         max_score = 1000
         score = max(min(score, max_score), -max_score)
         return (score + max_score) / (2 * max_score)
 
-    def get_mate_chances(mate_in_moves):
-        # Check if the engine found a mate in a certain number of moves
+    def get_mate_chances(self, mate_in_moves):
         if mate_in_moves is not None:
             if mate_in_moves == 1:
                 return "Mate in 1!"
@@ -177,13 +155,6 @@ class AnalysePosition(Resource):
 api.add_resource(NewGame, '/new_game')
 api.add_resource(MakeMove, '/make_move')
 api.add_resource(AnalysePosition, '/evaluate')
-#api.add_resource(SuggestMove, '/suggest_move')
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
-
-
-
-
-if __name__ == '__main__':
-    app.run(port=8080)

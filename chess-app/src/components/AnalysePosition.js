@@ -14,7 +14,7 @@ const AnalysePosition = () => {
 
   // Function to calculate the board size based on window width and height
   function calculateBoardSize() {
-    return Math.min(window.innerWidth * 0.7, window.innerHeight * 0.7, 500); // Adjusted max size
+    return Math.min(window.innerWidth * 0.8, window.innerHeight * 0.8, 650); // Adjusted max size
   }
 
   // Resize event listener to update board size

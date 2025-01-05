@@ -11,10 +11,9 @@ const Navbar = () => {
   };
 
   return (
-    <div className="md:w-1/5 bg-gray-800 h-screen p-6">
+    <div className=" bg-gray-800 h-screen p-6">
       {/* Header and Toggle Button for mobile */}
       <div className="flex justify-between items-center md:hidden">
-        <h1 className="text-lg font-semibold text-gray-200">Chess App</h1>
         <button onClick={toggleMenu} className="text-gray-200 focus:outline-none">
           {isOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
         </button>
@@ -24,7 +23,7 @@ const Navbar = () => {
       <ul
         className={`${
           isOpen ? 'block' : 'hidden'
-        } mt-4 space-y-6 md:block md:mt-0`}
+        } mt-4 space-y-6 md:mt-0`}
       >
         {[
           { to: '/', label: 'Home' },
